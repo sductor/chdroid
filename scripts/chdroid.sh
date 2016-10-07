@@ -35,13 +35,11 @@ SDCARD1DIR=/storage/sdcard1
 SDCARD0MNTDIR=media/android
 SDCARD1MNTDIR=media/ext
 
-LOGINCMD=bash -l
-
 
 
 
 ########
-#### Primitives
+#### Updating
 ########
 
 function update_scripts {
@@ -55,28 +53,18 @@ function update_scripts {
     mount -r -o remount /system
 }
 
+
+#######
+### Mounting
+#######
+
 function mnt {
   mknod $LOOPDEV b 7 $LOOPNO
 	losetup $LOOPDEV $IMG
 	$busybox mount -t ext4 -o relatime $LOOPDEV $ROOTFSDIR
 	for f in dev dev/pts proc sys ; do $busybox mount -o bind /$f $ROOTFSDIR/$f ; done
-	if [ ! -d $ROOTFSDIR/$SDCARD0MNTDIR ]; then
-			mount -o remount,rw /system
-		  mkdir -p $ROOTFSDIR/$SDCARD0MNTDIR
-	fi
-	if [ ! -d $ROOTFSDIR/$SDCARD1MNTDIR ]; then
-			mount -o remount,rw /system
-		  mkdir -p $ROOTFSDIR/$SDCARD1MNTDIR
-	fi
 	$busybox mount -o bind $SDCARD0DIR $ROOTFSDIR/$SDCARD0MNTDIR
 	$busybox mount -o bind $SDCARD1DIR $ROOTFSDIR/$SDCARD1MNTDIR
-}
-
-function log_in {
-	env -i  USER=root HOME=/root TERM=$TERM PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin $busybox chroot $ROOTFSDIR $LOGINCMD
-}
-function startx {
-	env -i  USER=root HOME=/root TERM=$TERM PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin $busybox chroot $ROOTFSDIR  bash -l -c $STARTXSCRIPT
 }
 
 
@@ -86,6 +74,26 @@ function unmnt {
 	losetup -d $LOOPDEV
 	rm $LOOPDEV
 }
+
+
+
+#######
+### Starting
+#######
+
+
+
+function log_in {
+	env -i  USER=root HOME=/root TERM=$TERM PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin $busybox chroot $ROOTFSDIR bash -l 
+}
+function startx {
+	env -i  USER=root HOME=/root TERM=$TERM PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin $busybox chroot $ROOTFSDIR  bash -l -c $STARTXSCRIPT
+}
+
+
+#######
+### Installation
+#######
 
 function mkimg_tar {
 		#wget -c $REMOTESOURCE
@@ -99,6 +107,11 @@ function mkimg_tar {
 
  
 function install {
+  echo "creating env directories"
+	mount -o remount,rw /system
+  mkdir -p $ROOTFSDIR/$SDCARD0MNTDIR
+  mkdir -p $ROOTFSDIR/$SDCARD1MNTDIR
+  mount -r -o remount /system
 	#if arch funtoo then mkimg_tar
 	echo "copying the source image as new rootfs img"
 	cp $SOURCE $IMG
@@ -117,74 +130,63 @@ function install {
 	env -i  USER=root HOME=/root TERM=$TERM PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin $busybox chroot $ROOTFSDIR bash -l -c $POSTINSTALLSCRIPT
 }
  
+
+#######
+### SubMain
+#######
+
+function interactive_menu {
+  OPTIONS="Mount Login Startx Umount Install Update Exit"
+	select opt in $OPTIONS; do
+		 if [ "$opt" = "Mount" ]; then
+			mnt
+		 elif [ "$opt" = "Login" ]; then
+			log_in
+			exit
+		 elif [ "$opt" = "Startx" ]; then
+			startx
+			exit
+		 elif [ "$opt" = "Install" ]; then
+			install
+			exit
+		 elif [ "$opt" = "Umount" ]; then
+			umnt
+		 elif [ "$opt" = "Update" ]; then
+			update_scripts 
+			exit
+		 elif [ "$opt" = "Exit" ]; then
+			echo Exiting
+			exit
+		 else
+			clear
+			echo bad option
+		 fi
+	done
+}
+
+function usage {
+
+}
+
 #######
 ### Main
 #######
 
 echo "This is chroot for Android"
 
-while [[ $# -gt 1 ]]
-do
-key="$1"
-
-case $key in
-    -t|--root-folder)
-		CHDROIDFOLDER="$2"
-    shift # past argument
-    ;;
-    -d|--distrib)
-    DISTRIB="$2"
-    shift # past argument
-    shift # past argument or value
-    ;;
-    -s|--size)
-    IMGSIZE="$2"
-    shift # past argument
-    shift # past argument or value
-    ;;
-    mount)
-    echo "mounting..."
-    mnt
-		break
-    ;;
-    login)
-    log_in
-    exit
-    ;;
-    startx)
-    startx
-    exit
-    ;;
-    *)
-    # unknown option
-    ;;
+cmd="$1"
+case $cmd in
+  i|interactive) interactive_menu                          ;;
+  m|mount)     echo "mounting..."   	    ; mnt		       	 ;;
+  u|umount)    echo "unmounting..." 	    ; umnt 	      	 ;;
+  l|login)     echo "login..."      	    ; log_in       	 ;;
+  x|startx)    echo "starting x..."       ; startx         ;;
+  in|install)  echo "installing..."       ; install        ;;
+  up|update)   echo "updating scripts..." ; update_scripts ;;
+  *)           echo "unknown option"      ; usage          ;;
 esac
-done
 
 
 
-OPTIONS="Mount Login Umount Install Update Exit"
-
-select opt in $OPTIONS; do
-   if [ "$opt" = "Mount" ]; then
-    mnt
-   elif [ "$opt" = "Login" ]; then
-    log_in
-		exit
-   elif [ "$opt" = "Install" ]; then
-    install
-		exit
-   elif [ "$opt" = "Umount" ]; then
-    umnt
-   elif [ "$opt" = "Update" ]; then
-    update_scripts 
-   elif [ "$opt" = "Exit" ]; then
-    echo Exiting
-    exit
-   else
-    clear
-    echo bad option
-   fi
-done
 
 exit 0

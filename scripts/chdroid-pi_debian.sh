@@ -2,6 +2,7 @@
 
 DEBVERSION=testing
 
+source software.perso
 
 /debootstrap/debootstrap --second-stage
 echo "
@@ -20,7 +21,3 @@ apt-get install -y $ALLPACKAGE
 dpkg-reconfigure tzdata
 
 
-
-#apt-get install aptitude tasksel
-# aptitude install ~t^desktop$ ~t^kde-desktop$
-#apt-get  --no-install-recommends install -y $ALLPACKAGE
