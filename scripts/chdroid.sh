@@ -1,39 +1,10 @@
 #!/system/bin/sh
 
                 
-#########
-#### CONFIG
-#########
+source /system/xbin/chdroid-config
 
-CHDROIDFOLDER=/sdcard/chdroid
-#DISTRIB=funtoo
-#DISTRIB=arch
-DISTRIB=debian
 
-ROOTFSDIR=$CHDROIDFOLDER/rootfs/$DISTRIB
-IMGDIR=$CHDROIDFOLDER/images
-IMG=$IMGDIR/$DISTRIB.img
-SOURCEDIR=$CHDROIDFOLDER/sources
-SOURCE=$SOURCEDIR/$DISTRIB.source
-SCRIPTDIR=$CHDROIDFOLDER/scripts
 
-POSTINSTALLSCRIPT=chdroid-pi_$DISTRIB.sh
-STARTSCRIPT=chdroid-start_$DISTRIB.sh
-STARTXSCRIPT=chdroid-startx_$DISTRIB.sh
-#FUNTOOSOURCE=???
-#ARCHSOURCE=???
-
-IMGSIZE=10G
-
-busybox=/system/xbin/busybox
-
-LOOPNO=254
-LOOPDEV=/dev/block/loop$LOOPNO
-
-SDCARD0DIR=$(readlink -f /sdcard)
-SDCARD1DIR=/storage/sdcard1 
-SDCARD0MNTDIR=media/android
-SDCARD1MNTDIR=media/ext
 
 
 

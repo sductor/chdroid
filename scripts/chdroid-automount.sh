@@ -1,4 +1,7 @@
 #!/system/xbin/bash
+
+source /system/xbin/chdroid-config
+
 export PATH=/sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin
 
 log=$CHDROIDFOLDER/chdroid.log
