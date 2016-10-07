@@ -34,27 +34,10 @@ SDCARD1DIR=/storage/sdcard1
 SDCARD0MNTDIR=media/android
 SDCARD1MNTDIR=media/ext
 
-########
-#### Updating
-########
-
-function update_scripts {
-	mount -o remount,rw /system
-	cp $SCRIPTDIR/chdroid.sh	 /system/xbin/chdroid && chmod 777  /system/xbin/chdroid
-	cp $SCRIPTDIR/chdroid-util.sh	 /system/xbin/chdroid-util && chmod 777  /system/xbin/chdroid-util 
-	cp $SCRIPTDIR/chdroid-config	 /system/xbin/chdroid-config
-	if [ ! -d /system/su.d ]; then
-       mkdir -m700 /system/su.d
-  fi
-  cp $SCRIPTDIR/chdroid-automount.sh	 /system/su.d && chmod 777  /system/su.d/chdroid-automount.sh
-  mount -r -o remount /system
-}
-
 #######
 ### Main
 #######
 
-update_scripts
 while [[ $# -gt 1 ]]
 do
 opt="$1"
@@ -76,9 +59,7 @@ opt="$1"
 		  shift # past argument
 		  shift # past argument or value
 		  ;;
-		  *)
-		  echo "unknown option"
-		  ;;
+		  *) ;;
 	esac
 done
 
