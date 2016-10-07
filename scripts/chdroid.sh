@@ -5,6 +5,26 @@ source /system/xbin/chdroid-conf
 
 
 
+
+
+
+
+########
+#### Updating
+########
+
+function update_scripts {
+	mount -o remount,rw /system
+	cp $SCRIPTDIR/chdroid.sh	 /system/xbin/chdroid && chmod 777  /system/xbin/chdroid
+	cp $SCRIPTDIR/chdroid-util.sh	 /system/xbin/chdroid-util && chmod 777  /system/xbin/chdroid-util 
+	if [ ! -d /system/su.d ]; then
+       mkdir -m700 /system/su.d
+     fi
+    cp $SCRIPTDIR/chdroid-droidinit.sh	 /system/su.d && chmod 777  /system/su.d/chdroid-droidinit.sh
+    mount -r -o remount /system
+}
+
+
 #######
 ### Mounting
 #######
