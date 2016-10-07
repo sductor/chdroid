@@ -1,7 +1,7 @@
 #!/system/bin/sh
 
                 
-source /system/xbin/chdroid-config
+source /system/xbin/chdroid-conf
 
 
 
@@ -101,6 +101,26 @@ function install {
 	env -i  USER=root HOME=/root TERM=$TERM PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin $busybox chroot $ROOTFSDIR bash -l -c $POSTINSTALLSCRIPT
 }
  
+
+########
+#### Updating
+########
+
+function update_scripts {
+	mount -o remount,rw /system
+	cp $SCRIPTDIR/chdroid.sh	 /system/xbin/chdroid
+  chmod 777  /system/xbin/chdroid
+	cp $SCRIPTDIR/chdroid-util.sh	 /system/xbin/chdroid-util
+  chmod 777  /system/xbin/chdroid-util 
+	cp $SCRIPTDIR/chdroid-conf.sh	 /system/xbin/chdroid-conf
+  chmod 777  /system/xbin/chdroid-conf
+	if [ ! -d /system/su.d ]; then
+       mkdir -m700 /system/su.d
+  fi
+  cp $SCRIPTDIR/chdroid-automount.sh	 /system/su.d
+  chmod 777  /system/su.d/chdroid-automount.sh
+  mount -r -o remount /system
+}
 
 #######
 ### SubMain

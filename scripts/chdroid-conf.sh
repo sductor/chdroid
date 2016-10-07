@@ -34,6 +34,7 @@ SDCARD1DIR=/storage/sdcard1
 SDCARD0MNTDIR=media/android
 SDCARD1MNTDIR=media/ext
 
+<<<<<<< HEAD
 ########
 #### Updating
 ########
@@ -54,12 +55,12 @@ function update_scripts {
   mount -r -o remount /system
 }
 
+
+
 #######
 ### Main
 #######
 
-echo "updating script..."
-update_scripts
 while [[ $# -gt 1 ]]
 do
 opt="$1"
