@@ -1,32 +1,23 @@
- #!/bin/bash
+#!/bin/bash
 
         
 #########
-#### CONFIG
+#### DEBIAN
 #########
 
-##SHARED WITH PITCH
-SELF=pitch
-SELF_DESKTOP=pitch_desktop
-CONF=pitch_conf
+SELF_DESKTOP=chdroid_desktop.sh
 
-IMGDIR=/sdcard
-IMGNAME=debian.img
-DISTRIB=stable
-##SHARED WITH PITCH
-
+IMGDIR=/sdcard/chdroid/sources
+IMGNAME=debian.source
 
 INSTALLDEBOOTSTRAP="pacman -y debootstrap"  #"apt-get install debootstrap"
-BUILDIMGDIR=/attic/Config/repository/yoga/linuxenv/
-INITIMGSIZE=512
+
 ARCH=amd64
-SCRIPTDIR=/attic/Config/scripts
+DISTRIB=jessie
+BUILDIMGDIR=/tmp
+INITIMGSIZE=300
 
-########
-#### Primitives
-########
-
-function genimage {
+function debian_genimage {
 	echo "Installing debootsrap"
 	$INSTALLDEBOOTSTRAP
 	echo "Generating Image"
@@ -40,15 +31,17 @@ function genimage {
 	debootstrap --verbose --arch $ARCH --foreign $DISTRIB debian http://ftp.debian.org/debian
 	umount debian/
 	rm -r debian/
+ 	e2fsck -f $IMGNAME
+  resize2fs -M $IMGNAME
 	adb push -p  $IMGNAME $IMGDIR/
-}
 
-function pitch_update {
-	adb shell `mount -o remount,rw /system`
-	adb -d push -p $SCRIPTDIR/$SELF /system/bin/
-	adb -d push -p $SCRIPTDIR/$CONF /system/bin/
-	adb -d `mount -r -o remount /system`
 }
+ 
+   
+#########
+#### 
+#########
+
 
 #######
 ### Main
@@ -61,11 +54,11 @@ then
 	exit 1
 fi
 
-OPTIONS="MakeImage Update Exit"
+OPTIONS="MakeImage  Exit"
 
 select opt in $OPTIONS; do
    if [ "$opt" = "MakeImage" ]; then
-    genimage
+    debian_genimage
    elif [ "$opt" = "Update" ]; then
     adb shell -c pitch_update
    elif [ "$opt" = "Exit" ]; then
@@ -78,5 +71,3 @@ select opt in $OPTIONS; do
 done
 
 exit 0
-
-

@@ -1,0 +1,30 @@
+ #!/bin/sh
+
+export HOME="/root"
+export USER="/root"
+
+STARTCMD=”vncserver --geometry 256x1600″
+STOPCMD=”vncserver --kill :1″
+
+case $1 in
+    start)
+        if [ -e /tmp/.X1-lock ]; then
+            echo “VNCServer already running”
+        else
+            $STARTCMD
+        fi
+            ;;
+    stop)
+        $STOPCMD
+        ;;
+    restart)
+        $STOPCMD
+        $STARTCMD
+        ;;
+    *)
+        echo “$0 start|stop|restart”
+        exit 1
+        ;;
+esac
+
+exit 0
