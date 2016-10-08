@@ -2,7 +2,10 @@
 
 DEBVERSION=testing
 
-source software.perso
+                
+source /system/xbin/chdroid-conf
+
+source $SCRIPTDIR/software.perso
 
 /debootstrap/debootstrap --second-stage
 echo "
